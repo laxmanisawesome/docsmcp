@@ -190,7 +190,13 @@ install_docker() {
 create_directories() {
     log "Creating installation directory..."
     
-    mkdir -p "$DOCSMCP_DIR"/{data,logs,config}
+    # For dev mode, create empty directory for git clone
+    # For docker mode, create subdirectories
+    if [[ "$DEV_MODE" == "1" ]]; then
+        mkdir -p "$DOCSMCP_DIR"
+    else
+        mkdir -p "$DOCSMCP_DIR"/{data,logs,config}
+    fi
     
     success "Created $DOCSMCP_DIR"
 }
@@ -203,17 +209,19 @@ download_files() {
     if [[ "$DEV_MODE" == "1" ]]; then
         # Clone repository for development
         if [[ -d ".git" ]]; then
-            git pull origin main
+            git pull origin master
         else
             git clone "$REPO_URL.git" .
+            # Create data directories after clone
+            mkdir -p data logs config
         fi
         success "Repository cloned"
     else
         # Download docker-compose and env files only
-        $DOWNLOADER "$REPO_URL/raw/main/docker-compose.yml" > docker-compose.yml
+        $DOWNLOADER "$REPO_URL/raw/master/docker-compose.yml" > docker-compose.yml
         
         if [[ ! -f ".env" ]]; then
-            $DOWNLOADER "$REPO_URL/raw/main/.env.example" > .env
+            $DOWNLOADER "$REPO_URL/raw/master/.env.example" > .env
         fi
         
         success "Configuration files downloaded"
