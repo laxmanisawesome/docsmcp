@@ -119,7 +119,7 @@ check_docker() {
         # Read from /dev/tty so prompts work when script is piped into bash
         read -r -p "Choose I / L / S [I]: " choice </dev/tty
         choice="${choice:-I}"
-        # Portable uppercase (macOS / old bash don't support ${var^^})
+        # Portable uppercase conversion for macOS bash compatibility
         choice="$(printf '%s' "$choice" | tr '[:lower:]' '[:upper:]')"
         case "$choice" in
             I)
