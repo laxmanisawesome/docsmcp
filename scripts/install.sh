@@ -8,6 +8,9 @@
 #   DOCSMCP_PORT    Server port (default: 8090)
 #   SKIP_DOCKER     Skip Docker installation (set to 1)
 #   DEV_MODE        Install from source for development (set to 1)
+#   AUTO_INSTALL_DOCKER  Install Docker non-interactively if missing (set to 1)
+#   FORCE_LOCAL          Force local Python (dev) mode non-interactively (set to 1)
+#   AUTO_START_DOCKER    Attempt to auto-start Docker if daemon not running (macOS only)
 #
 
 set -euo pipefail
@@ -91,22 +94,67 @@ check_docker() {
         warn "Skipping Docker check (SKIP_DOCKER=1)"
         return
     fi
-    
+
     log "Checking Docker..."
-    
+
     if ! command -v docker &>/dev/null; then
-        warn "Docker not found. Install Docker? [Y/n]"
-        read -r response
-        if [[ "$response" =~ ^[Nn]$ ]]; then
-            error "Docker is required. Install manually or set SKIP_DOCKER=1"
+        # Non-interactive options
+        if [[ "${AUTO_INSTALL_DOCKER:-0}" == "1" ]]; then
+            log "AUTO_INSTALL_DOCKER=1 set — installing Docker automatically"
+            install_docker
+            return
         fi
-        install_docker
+        if [[ "${FORCE_LOCAL:-0}" == "1" ]]; then
+            log "FORCE_LOCAL=1 set — switching to local Python (development) mode"
+            DEV_MODE=1
+            return
+        fi
+
+        # Interactive prompt with choices
+        echo ""
+        echo "[!] Docker not found. What would you like to do?"
+        echo "  (I)nstall Docker now (recommended)"
+        echo "  (L)ocal Python (dev) mode — run using virtualenv on this machine"
+        echo "  (S)kip Docker and exit (you can set SKIP_DOCKER=1 to bypass)"
+        read -r -p "Choose I / L / S [I]: " choice
+        choice="${choice:-I}"
+        case "${choice^^}" in
+            I)
+                install_docker
+                ;;
+            L)
+                log "Switching to local Python (development) mode"
+                DEV_MODE=1
+                ;;
+            S)
+                warn "Skipping Docker. You can rerun the installer with Docker available or set SKIP_DOCKER=1"
+                SKIP_DOCKER=1
+                ;;
+            *)
+                log "Unrecognized option — defaulting to Install Docker"
+                install_docker
+                ;;
+        esac
     fi
-    
-    if ! docker info &>/dev/null; then
-        error "Docker daemon is not running. Please start Docker and try again."
+
+    # If Docker exists but daemon is not running
+    if command -v docker &>/dev/null; then
+        if ! docker info &>/dev/null; then
+            warn "Docker CLI found but Docker daemon isn't running."
+            if [[ "${AUTO_START_DOCKER:-0}" == "1" ]]; then
+                log "AUTO_START_DOCKER=1 set — attempting to start Docker (macOS only supported via open)"
+                if [[ "$OS_TYPE" == "macos" ]]; then
+                    open -a Docker || true
+                    log "Launched Docker.app — please wait a few seconds and re-run the installer if it's still not ready"
+                else
+                    warn "Automatic Docker start is not implemented for this OS. Please start the daemon and re-run the installer."
+                fi
+            else
+                error "Docker daemon is not running. Please start Docker and try again."
+            fi
+        fi
     fi
-    
+
     success "Docker is ready"
 }
 
