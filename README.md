@@ -75,21 +75,30 @@ curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scrip
 
 ### 🔧 **Service Management**
 
-After installation, you can manage DocsMCP using these commands:
+After installation, DocsMCP provides convenient commands for managing the service:
 
-**Docker Mode:**
+**Service Commands (Unified for Both Docker & Local Python):**
 ```bash
-# View logs
-docker compose -f ~/.docsmcp/docker-compose.yml logs -f
+# Start DocsMCP
+~/.docsmcp/docsmcp-start
 
-# Stop service
-docker compose -f ~/.docsmcp/docker-compose.yml down
+# Stop DocsMCP
+~/.docsmcp/docsmcp-stop
 
-# Restart service
-docker compose -f ~/.docsmcp/docker-compose.yml restart
+# Check status and URLs
+~/.docsmcp/docsmcp-status
 ```
 
-**Local Python Mode:**
+**View Logs:**
+```bash
+# Local Python mode
+tail -f ~/.docsmcp/docsmcp.log
+
+# Docker mode 
+docker compose -f ~/.docsmcp/docker-compose.yml logs -f
+```
+
+**Development/Manual Commands:****
 ```bash
 # Start service
 cd ~/.docsmcp && ./start.sh
@@ -101,7 +110,7 @@ cd ~/.docsmcp && ./stop.sh
 cd ~/.docsmcp && source venv/bin/activate && python -m src.main
 ```
 
-**Uninstall (both modes):**
+**Uninstall:**
 ```bash
 rm -rf ~/.docsmcp
 ```
