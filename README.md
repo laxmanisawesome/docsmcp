@@ -19,6 +19,8 @@
 
 ---
 
+**Maintainer:** [@laxmanisawesome](https://github.com/laxmanisawesome) • [laxtothemax@proton.me](mailto:laxtothemax@proton.me)
+
 ## The Problem
 
 **Documentation is changing faster than AI models can keep up.**
@@ -52,7 +54,7 @@ Ask Claude: *"What's the useState hook signature?"* → Claude queries your loca
 
 ```bash
 # Clone and start
-git clone https://github.com/yourusername/docsmcp.git
+git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 cp .env.example .env
 docker-compose up -d
@@ -70,13 +72,13 @@ curl -X POST http://localhost:8090/api/projects \
 ### Option 2: One-Line Install
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/yourusername/docsmcp/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash
 ```
 
 ### Option 3: Manual Installation
 
 ```bash
-git clone https://github.com/yourusername/docsmcp.git
+git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 python3 -m venv .venv
 source .venv/bin/activate
@@ -254,7 +256,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
       "args": [
         "run", "-i", "--rm",
         "-v", "docsmcp_data:/app/data",
-        "ghcr.io/yourusername/docsmcp:latest",
+        "ghcr.io/laxmanisawesome/docsmcp:latest",
         "python", "src/mcp_stdio.py"
       ]
     }
@@ -313,7 +315,7 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
 ```bash
 # Development setup
-git clone https://github.com/yourusername/docsmcp.git
+git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 python3 -m venv .venv
 source .venv/bin/activate
@@ -344,8 +346,8 @@ python src/main.py --reload
 ## Support
 
 - 📖 [Documentation](docs/)
-- 💬 [GitHub Discussions](https://github.com/yourusername/docsmcp/discussions)
-- 🐛 [Issue Tracker](https://github.com/yourusername/docsmcp/issues)
+- 💬 [GitHub Discussions](https://github.com/laxmanisawesome/docsmcp/discussions)
+- 🐛 [Issue Tracker](https://github.com/laxmanisawesome/docsmcp/issues)
 
 ---
 

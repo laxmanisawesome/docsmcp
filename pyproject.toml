@@ -9,7 +9,7 @@ description = "Convert any documentation into an MCP server for AI assistants"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "laxisawesome", email = "laxtothemax@proton.me"}
 ]
 requires-python = ">=3.11"
 classifiers = [
@@ -61,10 +61,10 @@ all = ["docsmcp[vector,dev]"]
 docsmcp = "src.cli:cli"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/docsmcp"
-Documentation = "https://github.com/yourusername/docsmcp#readme"
-Repository = "https://github.com/yourusername/docsmcp"
-Issues = "https://github.com/yourusername/docsmcp/issues"
+Homepage = "https://github.com/laxmanisawesome/docsmcp"
+Documentation = "https://github.com/laxmanisawesome/docsmcp#readme"
+Repository = "https://github.com/laxmanisawesome/docsmcp"
+Issues = "https://github.com/laxmanisawesome/docsmcp/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

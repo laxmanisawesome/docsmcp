@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to DocsMCP! This document provides guidelines and information for contributors.
 
+**Maintainer:** [@laxmanisawesome](https://github.com/laxmanisawesome) • [laxtothemax@proton.me](mailto:laxtothemax@proton.me)
+
 ## Code of Conduct
 
 By participating in this project, you agree to maintain a respectful and inclusive environment. Be kind, be helpful, and assume good intentions.
@@ -10,7 +12,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 ### Reporting Bugs
 
-1. Check existing [issues](https://github.com/yourusername/docsmcp/issues) to avoid duplicates
+1. Check existing [issues](https://github.com/laxmanisawesome/docsmcp/issues) to avoid duplicates
 2. Use the bug report template
 3. Include:
    - DocsMCP version
@@ -48,7 +50,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/docsmcp.git
+git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 
 # Create virtual environment

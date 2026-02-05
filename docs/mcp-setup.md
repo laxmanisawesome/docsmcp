@@ -59,7 +59,7 @@ Claude Desktop can spawn a Docker container directly:
         "run", "-i", "--rm",
         "-v", "docsmcp_data:/app/data",
         "-e", "API_TOKEN=your-api-token",
-        "ghcr.io/yourusername/docsmcp:latest",
+        "ghcr.io/laxmanisawesome/docsmcp:latest",
         "python", "src/mcp_stdio.py"
       ]
     }

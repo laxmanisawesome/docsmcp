@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # DocsMCP One-Line Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/yourusername/docsmcp/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash
 #
 # Options (via environment variables):
 #   DOCSMCP_DIR     Installation directory (default: ~/.docsmcp)
@@ -32,7 +32,7 @@ DOCSMCP_DIR="${DOCSMCP_DIR:-$HOME/.docsmcp}"
 DOCSMCP_PORT="${DOCSMCP_PORT:-8090}"
 SKIP_DOCKER="${SKIP_DOCKER:-0}"
 DEV_MODE="${DEV_MODE:-0}"
-REPO_URL="https://github.com/yourusername/docsmcp"
+REPO_URL="https://github.com/laxmanisawesome/docsmcp"
 
 log() { echo -e "${BLUE}[DocsMCP]${NC} $1"; }
 success() { echo -e "${GREEN}[✓]${NC} $1"; }
