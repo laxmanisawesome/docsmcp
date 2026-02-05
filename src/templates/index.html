@@ -24,15 +24,15 @@
         <section class="status-bar">
             <div class="status-item">
                 <span class="label">Projects</span>
-                <span class="value" id="project-count">{{ stats.projects }}</span>
+                <span class="value" id="project-count">{{ projects|length }}</span>
             </div>
             <div class="status-item">
                 <span class="label">Documents</span>
-                <span class="value" id="doc-count">{{ stats.documents }}</span>
+                <span class="value" id="doc-count">Loading...</span>
             </div>
             <div class="status-item">
                 <span class="label">Index</span>
-                <span class="value">{{ stats.index_type }}</span>
+                <span class="value">{{ 'Vector + FTS' if settings.enable_vector else 'FTS Only' }}</span>
             </div>
             <div class="status-item">
                 <span class="label">MCP</span>
