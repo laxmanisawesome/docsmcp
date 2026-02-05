@@ -12,13 +12,28 @@ from typing import List, Dict, Any
 from storage import project_dir, docs_dir, fts_db_path
 
 
-def build_fts_index(project_id: str) -> int:
+from typing import Optional
+
+
+def _paths_for_project(project_id: str, base_dir: Optional[str] = None):
+    """Return (db_path, docs_folder) for a project, optionally using a base directory for tests."""
+    if base_dir:
+        base = Path(base_dir)
+        project_path = base / project_id
+        db_path = project_path / "fts_index.db"
+        docs_folder = project_path / "docs"
+    else:
+        db_path = fts_db_path(project_id)
+        docs_folder = docs_dir(project_id)
+    return db_path, docs_folder
+
+
+def build_fts_index(project_id: str, base_dir: Optional[str] = None) -> int:
     """Build FTS5 index for a project.
     
     Returns the number of documents indexed.
     """
-    db_path = fts_db_path(project_id)
-    docs_folder = docs_dir(project_id)
+    db_path, docs_folder = _paths_for_project(project_id, base_dir)
     
     if not docs_folder.exists():
         return 0
@@ -94,13 +109,22 @@ def build_fts_index(project_id: str) -> int:
 def query_fts(
     project_id: str,
     query: str,
-    top_k: int = 10
+    top_k: int | str = 10,
+    base_dir: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
+    # Backwards compatibility: tests pass base_dir as the 3rd positional arg.
+    if isinstance(top_k, str) and base_dir is None:
+        base_dir = top_k
+        top_k = 10
+    try:
+        top_k = int(top_k)
+    except Exception:
+        top_k = 10
     """Query the FTS index.
     
     Returns list of results with title, path, url, snippet, and score.
     """
-    db_path = fts_db_path(project_id)
+    db_path, _ = _paths_for_project(project_id, base_dir)
     if not db_path.exists():
         return []
 
@@ -145,18 +169,18 @@ def query_fts(
         conn.close()
 
 
-def delete_fts_index(project_id: str) -> bool:
+def delete_fts_index(project_id: str, base_dir: Optional[str] = None) -> bool:
     """Delete the FTS index for a project."""
-    db_path = fts_db_path(project_id)
+    db_path, _ = _paths_for_project(project_id, base_dir)
     if db_path.exists():
         db_path.unlink()
         return True
     return False
 
 
-def get_fts_stats(project_id: str) -> Dict[str, Any]:
+def get_fts_stats(project_id: str, base_dir: Optional[str] = None) -> Dict[str, Any]:
     """Get statistics about the FTS index."""
-    db_path = fts_db_path(project_id)
+    db_path, _ = _paths_for_project(project_id, base_dir)
     if not db_path.exists():
         return {"exists": False, "document_count": 0, "size_bytes": 0}
     
