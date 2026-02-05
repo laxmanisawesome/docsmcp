@@ -50,32 +50,43 @@ Ask Claude: *"What's the useState hook signature?"* → Claude queries your loca
 
 ## Quick Start
 
-### Option 1: Docker (Recommended)
+### 🚀 **One-Line Installation** (Recommended)
 
 ```bash
-# Clone and start
+# Install DocsMCP with interactive setup
+curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scripts/install.sh | bash
+```
+
+**What happens:**
+1. **Installs DocsMCP** — Docker or local Python setup  
+2. **Starts the service** — Available at `http://localhost:8090`
+3. **Opens the dashboard** — Ready to add your first documentation project
+
+### 📊 **Using the Web Dashboard**
+
+1. **Visit:** `http://localhost:8090`
+2. **Add a project:** Enter any documentation URL (e.g., `https://react.dev`)
+3. **Auto-scraping:** DocsMCP indexes the site in the background
+4. **Get MCP config:** Copy the ready-to-use configuration for Claude Desktop or VS Code
+5. **Start querying:** Ask your AI about the latest documentation!
+
+### ⚡ **Alternative Methods**
+
+<details>
+<summary>Docker Compose Setup</summary>
+
+```bash
 git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 cp .env.example .env
 docker-compose up -d
-
-# Open Web UI
-open http://localhost:8090
-
-# Add your first docs
-curl -X POST http://localhost:8090/api/projects \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer changeme" \
-  -d '{"id": "react", "base_url": "https://react.dev/reference"}'
+# Open http://localhost:8090
 ```
 
-### Option 2: One-Line Install
+</details>
 
-```bash
-curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scripts/install.sh | bash
-```
-
-### Option 3: Manual Installation
+<details>
+<summary>Manual Python Installation</summary>
 
 ```bash
 git clone https://github.com/laxmanisawesome/docsmcp.git
@@ -85,7 +96,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 python src/main.py
+# Open http://localhost:8090
 ```
+
+</details>
 
 ---
 
@@ -112,13 +126,24 @@ Works out-of-the-box with:
 - **VS Code** — With MCP extension
 - **Any MCP Client** — Standard JSON-RPC protocol
 
-### 🖥️ **Clean Web Dashboard**
+### 🖥️ **Complete Web Dashboard**
 
-- Add/remove documentation projects
-- Monitor scrape progress
-- Search across all indexed docs
-- Copy MCP configuration
-- Mobile-responsive design
+**Professional interface for managing your documentation ecosystem:**
+
+- **📊 Project Overview** — Real-time stats and status monitoring
+- **➕ One-Click Setup** — Add any documentation site with a URL
+- **📋 MCP Config Generator** — Get ready-to-use configuration for:
+  - Claude Desktop
+  - VS Code MCP
+  - Custom MCP clients
+- **🔍 Integrated Search** — Query across all projects with live results  
+- **📂 Project Management** — View details, documents, scraping status
+- **📱 Mobile Responsive** — Clean interface on any device
+- **🔧 Configuration Hub** — Manage settings, API keys, endpoints
+
+**Try it live:** After installation, visit `http://localhost:8090` to see the full dashboard in action.
+
+![DocsMCP Dashboard Preview](https://via.placeholder.com/800x400/f8f8f8/333333?text=DocsMCP+Dashboard+%E2%80%A2+Add+Projects+%E2%80%A2+Generate+Configs+%E2%80%A2+Search+Docs)
 
 ### 💻 **Powerful CLI**
 
@@ -214,6 +239,79 @@ docsmcp/
 3. **Index** — Build FTS (and optionally vector) index
 4. **Query** — Search via REST API or MCP protocol
 5. **Respond** — Return relevant docs to AI assistant
+
+---
+
+## MCP Setup & Integration
+
+DocsMCP provides **automatic MCP configuration generation** for seamless integration with any MCP client.
+
+### 🖥️ **Claude Desktop** 
+
+1. Open DocsMCP dashboard → **MCP Configuration** section
+2. Copy the **Claude Desktop** config
+3. Paste into your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "docsmcp": {
+      "command": "curl",
+      "args": [
+        "-s", "-X", "POST", 
+        "http://localhost:8090/mcp",
+        "-H", "Content-Type: application/json",
+        "-d", "@-"
+      ]
+    }
+  }
+}
+```
+
+4. Restart Claude Desktop
+5. **Test:** Ask Claude *"Search my documentation for useState"*
+
+### 🔧 **VS Code MCP**
+
+1. Install the MCP extension in VS Code
+2. Copy the **VS Code** config from the dashboard:
+
+```json
+{
+  "docsmcp": {
+    "type": "http",
+    "url": "http://localhost:8090/mcp",
+    "description": "Documentation search via DocsMCP"
+  }
+}
+```
+
+3. Add to your MCP settings
+4. **Test:** Use MCP commands to query your indexed docs
+
+### ⚡ **Project-Specific Configs**
+
+The dashboard can generate MCP configurations for individual projects:
+
+1. Click **"Details"** on any project
+2. Copy the project-specific MCP config
+3. Multiple projects = Multiple MCP servers for organized access
+
+### 🔗 **Custom MCP Clients**
+
+**Endpoint:** `http://localhost:8090/mcp`  
+**Protocol:** JSON-RPC 2.0 over HTTP POST
+
+Example query:
+```bash
+curl -X POST http://localhost:8090/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/list",
+    "id": "1"
+  }'
+```
 
 ---
 
