@@ -60,8 +60,8 @@ app.add_middleware(
 )
 
 # Templates and static files
-TEMPLATES_DIR = Path(__file__).parent / "web" / "templates"
-STATIC_DIR = Path(__file__).parent / "web" / "static"
+TEMPLATES_DIR = Path(__file__).parent / "templates"
+STATIC_DIR = Path(__file__).parent / "static"
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR)) if TEMPLATES_DIR.exists() else None
 
@@ -213,7 +213,7 @@ async def get_metrics():
 
 # --- Project Endpoints ---
 
-@app.get("/api/projects", response_model=List[Project], dependencies=[Depends(verify_token)])
+@app.get(\"/api/stats\")\nasync def get_stats():\n    \"\"\"Get overall system statistics.\"\"\"\n    projects = list_projects()\n    total_projects = len(projects)\n    total_documents = 0\n    \n    for project_id in projects:\n        stats = get_project_stats(project_id)\n        total_documents += stats[\"page_count\"]\n    \n    return {\n        \"projects\": total_projects,\n        \"documents\": total_documents,\n        \"index_type\": \"Vector + FTS\" if settings.enable_vector_index else \"FTS Only\",\n    }\n\n\n@app.get(\"/api/projects\", response_model=List[Project], dependencies=[Depends(verify_token)])
 async def get_projects():
     """List all projects."""
     projects = []
