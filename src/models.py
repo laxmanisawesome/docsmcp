@@ -21,10 +21,17 @@ class ProjectConfig(BaseModel):
 
 
 class ProjectCreate(BaseModel):
-    """Request model for creating a project."""
-    id: str = Field(..., min_length=1, max_length=64, pattern=r"^[a-zA-Z0-9_-]+$")
+    """Request model for creating a project.
+
+    Accepts either `id` or `name` for backwards compatibility with older clients/tests.
+    """
+    id: str = Field(..., alias="name", min_length=1, max_length=64, pattern=r"^[a-zA-Z0-9_-]+$")
     base_url: str = Field(..., min_length=10)
     config: Optional[ProjectConfig] = None
+
+    model_config = {
+        "populate_by_name": True
+    }
 
 
 class ProjectUpdate(BaseModel):
@@ -79,6 +86,7 @@ class ProjectListResponse(BaseModel):
 class ProjectResponse(BaseModel):
     """Response for a single project."""
     id: str
+    name: Optional[str] = None
     base_url: str
     status: str
     message: Optional[str] = None

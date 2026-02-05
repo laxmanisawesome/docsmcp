@@ -11,7 +11,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 import uvicorn
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response
@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import settings
 from models import (
-    ProjectCreate, ProjectUpdate, ProjectListResponse, ProjectResponse,
+    Project, ProjectCreate, ProjectUpdate, ProjectListResponse, ProjectResponse,
     SearchRequest, SearchResponse, SearchResult,
     DocumentListResponse, Document,
     MCPRequest, MCPResponse,
@@ -213,7 +213,7 @@ async def get_metrics():
 
 # --- Project Endpoints ---
 
-@app.get("/api/projects", response_model=ProjectListResponse, dependencies=[Depends(verify_token)])
+@app.get("/api/projects", response_model=List[Project], dependencies=[Depends(verify_token)])
 async def get_projects():
     """List all projects."""
     projects = []
@@ -223,12 +223,13 @@ async def get_projects():
         projects.append({
             "id": project_id,
             "base_url": config.get("baseUrl", ""),
-            "page_count": stats["page_count"],
+            "config": config.get("config", {}),
+            "stats": stats,
             "status": config.get("status", "unknown"),
             "last_scraped": config.get("completedAt"),
             "created_at": config.get("createdAt"),
         })
-    return {"projects": projects, "total": len(projects)}
+    return projects
 
 
 @app.get("/api/projects/{project_id}", dependencies=[Depends(verify_token)])
@@ -257,7 +258,15 @@ async def get_project(project_id: str):
 async def create_project(data: ProjectCreate):
     """Create a new project."""
     if project_exists(data.id):
-        raise HTTPException(status_code=409, detail=f"Project '{data.id}' already exists")
+        # If project already exists, return its basic info instead of raising.
+        config = read_json(config_path(data.id))
+        return {
+            "id": data.id,
+            "name": data.id,
+            "base_url": config.get("baseUrl", ""),
+            "status": config.get("status", "created"),
+            "message": "Project already exists",
+        }
     
     config = {
         "id": data.id,
@@ -270,6 +279,7 @@ async def create_project(data: ProjectCreate):
     
     return {
         "id": data.id,
+        "name": data.id,
         "base_url": data.base_url,
         "status": "created",
         "message": f"Project created. POST /api/projects/{data.id}/scrape to start scraping.",
