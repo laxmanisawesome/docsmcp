@@ -52,15 +52,18 @@ Ask Claude: *"What's the useState hook signature?"* → Claude queries your loca
 
 ### 🚀 **One-Line Installation** (Recommended)
 
+**Prerequisites:** For the best experience, install [Docker](https://docs.docker.com/get-docker/) first.
+
 ```bash
 # Install DocsMCP with interactive setup
 curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scripts/install.sh | bash
 ```
 
 **What happens:**
-1. **Installs DocsMCP** — Docker or local Python setup  
-2. **Starts the service** — Available at `http://localhost:8090`
-3. **Opens the dashboard** — Ready to add your first documentation project
+1. **Detects Docker** — Recommends Docker mode for production or local Python for development
+2. **Installs DocsMCP** — Complete setup with all dependencies
+3. **Tests the service** — Verifies everything works and provides localhost URL
+4. **Creates management scripts** — Easy start/stop commands for your installation
 
 ### 📊 **Using the Web Dashboard**
 
@@ -69,6 +72,39 @@ curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scrip
 3. **Auto-scraping:** DocsMCP indexes the site in the background
 4. **Get MCP config:** Copy the ready-to-use configuration for Claude Desktop or VS Code
 5. **Start querying:** Ask your AI about the latest documentation!
+
+### 🔧 **Service Management**
+
+After installation, you can manage DocsMCP using these commands:
+
+**Docker Mode:**
+```bash
+# View logs
+docker compose -f ~/.docsmcp/docker-compose.yml logs -f
+
+# Stop service
+docker compose -f ~/.docsmcp/docker-compose.yml down
+
+# Restart service
+docker compose -f ~/.docsmcp/docker-compose.yml restart
+```
+
+**Local Python Mode:**
+```bash
+# Start service
+cd ~/.docsmcp && ./start.sh
+
+# Stop service 
+cd ~/.docsmcp && ./stop.sh
+
+# Manual start (for development)
+cd ~/.docsmcp && source venv/bin/activate && python -m src.main
+```
+
+**Uninstall (both modes):**
+```bash
+rm -rf ~/.docsmcp
+```
 
 ### ⚡ **Alternative Methods**
 

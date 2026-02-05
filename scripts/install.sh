@@ -266,11 +266,57 @@ start_service() {
         log "Creating virtual environment..."
         python3 -m venv venv
         source venv/bin/activate
+        
+        log "Installing dependencies..."
         pip install -q -r requirements.txt
         
-        warn "Development mode: Run 'source $DOCSMCP_DIR/venv/bin/activate && python -m src.main' to start"
+        # Install missing dependencies that might be needed
+        pip install -q lxml_html_clean >/dev/null 2>&1 || true
+        
+        # Create startup script
+        cat > start.sh << 'EOF'
+#!/bin/bash
+cd "$(dirname "$0")"
+source venv/bin/activate
+exec python -m src.main
+EOF
+        chmod +x start.sh
+        
+        # Create stop script 
+        cat > stop.sh << 'EOF'
+#!/bin/bash
+echo "Stopping DocsMCP..."
+pkill -f "python -m src.main" || true
+EOF
+        chmod +x stop.sh
+        
+        # Test startup briefly to verify everything works
+        log "Testing service startup..."
+        timeout 10s python -m src.main > startup.log 2>&1 &
+        SERVICE_PID=$!
+        
+        # Wait a moment for startup
+        sleep 5
+        
+        # Test if service responds
+        if curl -sf \"http://localhost:$DOCSMCP_PORT/health\" >/dev/null 2>&1; then
+            log "Service test successful - stopping test instance"
+            kill $SERVICE_PID 2>/dev/null || true
+            wait $SERVICE_PID 2>/dev/null || true
+            success "DocsMCP installed and tested successfully"
+        else
+            kill $SERVICE_PID 2>/dev/null || true
+            wait $SERVICE_PID 2>/dev/null || true
+            warn "Service test failed - check startup.log for details"
+            log "You can manually start with: cd $DOCSMCP_DIR && ./start.sh"
+        fi
+        
     else
         # Production mode - use Docker
+        if ! command -v docker &>/dev/null; then
+            error "Docker is required for production mode. Install Docker first or use local Python mode."
+        fi
+        
         docker compose pull
         docker compose up -d
         
@@ -278,6 +324,15 @@ start_service() {
         log "Waiting for service to start..."
         for i in {1..30}; do
             if curl -sf "http://localhost:$DOCSMCP_PORT/health" &>/dev/null; then
+                success "Service is ready"
+                return
+            fi
+            sleep 1
+        done
+        
+        warn "Service may still be starting. Check logs: docker compose logs -f"
+    fi
+}
                 success "DocsMCP is running!"
                 break
             fi
@@ -340,8 +395,23 @@ print_success() {
     echo "    $DOCSMCP_DIR/docsmcp scrape <name>"
     echo "    $DOCSMCP_DIR/docsmcp search <query>"
     echo ""
-    echo "  Logs:       docker compose -f $DOCSMCP_DIR/docker-compose.yml logs -f"
-    echo "  Stop:       docker compose -f $DOCSMCP_DIR/docker-compose.yml down"
+    
+    if [[ "$DEV_MODE" == "1" ]]; then
+        # Local Python mode instructions
+        echo "  Local Python Mode:"
+        echo "    Start:      cd $DOCSMCP_DIR && ./start.sh"
+        echo "    Stop:       cd $DOCSMCP_DIR && ./stop.sh"
+        echo "    Manual:     cd $DOCSMCP_DIR && source venv/bin/activate && python -m src.main"
+        echo "    Logs:       Check startup.log for any startup issues"
+    else
+        # Docker mode instructions  
+        echo "  Docker Mode:"
+        echo "    Logs:       docker compose -f $DOCSMCP_DIR/docker-compose.yml logs -f"
+        echo "    Stop:       docker compose -f $DOCSMCP_DIR/docker-compose.yml down"
+        echo "    Restart:    docker compose -f $DOCSMCP_DIR/docker-compose.yml restart"
+    fi
+    
+    echo ""
     echo "  Uninstall:  rm -rf $DOCSMCP_DIR"
     echo ""
 }
