@@ -153,7 +153,7 @@ RESPECT_ROBOTS_TXT=permissive
 HTTP User-Agent string for requests.
 
 ```bash
-USER_AGENT=DocsMCP/1.0 (+https://github.com/yourusername/docsmcp)
+USER_AGENT=DocsMCP/1.0 (+https://github.com/laxmanisawesome/docsmcp)
 ```
 
 - **Default:** `DocsMCP/1.0`

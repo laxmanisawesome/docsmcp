@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Documentation: updated repository links to https://github.com/laxmanisawesome/docsmcp and added maintainer contact ([@laxmanisawesome](https://github.com/laxmanisawesome), 81405043+laxmanisawesome@users.noreply.github.com)
+
 ### Added
 - Initial open-source release
 

@@ -86,7 +86,7 @@ docker --version
 
 ```bash
 cd ~
-git clone https://github.com/yourusername/docsmcp.git
+git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 ```
 

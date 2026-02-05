@@ -18,7 +18,7 @@ FROM python:3.11-slim
 LABEL org.opencontainers.image.title="DocsMCP"
 LABEL org.opencontainers.image.description="Self-hosted documentation search with MCP support"
 LABEL org.opencontainers.image.version="1.0.0"
-LABEL org.opencontainers.image.source="https://github.com/yourusername/docsmcp"
+LABEL org.opencontainers.image.source="https://github.com/laxmanisawesome/docsmcp"
 LABEL org.opencontainers.image.licenses="MIT"
 
 WORKDIR /app

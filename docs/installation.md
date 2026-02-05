@@ -20,7 +20,7 @@ The easiest way to run DocsMCP. Works on Linux, macOS, and Windows.
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/docsmcp.git
+git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 ```
 
@@ -63,7 +63,7 @@ Navigate to [http://localhost:8090](http://localhost:8090)
 For quick setup on a fresh server:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/yourusername/docsmcp/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash
 ```
 
 The script will:
@@ -78,7 +78,7 @@ The script will:
 For guided setup with prompts:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/yourusername/docsmcp/main/scripts/install.sh | bash -s -- --interactive
+curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash -s -- --interactive
 ```
 
 ---
@@ -90,7 +90,7 @@ For development or systems without Docker.
 ### Step 1: Clone and Setup Virtual Environment
 
 ```bash
-git clone https://github.com/yourusername/docsmcp.git
+git clone https://github.com/laxmanisawesome/docsmcp.git
 cd docsmcp
 
 # Create virtual environment
@@ -137,7 +137,7 @@ For production deployments on Kubernetes.
 
 ```bash
 # Add helm repo
-helm repo add docsmcp https://yourusername.github.io/docsmcp-charts
+helm repo add docsmcp https://laxmanisawesome.github.io/docsmcp-charts
 helm repo update
 
 # Install
