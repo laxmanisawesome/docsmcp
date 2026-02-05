@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocsMCP</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>DocsMCP</h1>
+            <nav>
+                <a href="/" class="active">Dashboard</a>
+                <a href="/docs">API</a>
+                <a href="https://github.com/yourusername/docsmcp" target="_blank">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Status Bar -->
+        <section class="status-bar">
+            <div class="status-item">
+                <span class="label">Projects</span>
+                <span class="value" id="project-count">{{ stats.projects }}</span>
+            </div>
+            <div class="status-item">
+                <span class="label">Documents</span>
+                <span class="value" id="doc-count">{{ stats.documents }}</span>
+            </div>
+            <div class="status-item">
+                <span class="label">Index</span>
+                <span class="value">{{ stats.index_type }}</span>
+            </div>
+            <div class="status-item">
+                <span class="label">MCP</span>
+                <span class="value status-ok">Ready</span>
+            </div>
+        </section>
+
+        <!-- Add Project Form -->
+        <section class="card">
+            <h2>Add Project</h2>
+            <form id="add-project-form" hx-post="/api/projects" hx-target="#projects-list" hx-swap="innerHTML" hx-on::after-request="this.reset()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Project Name</label>
+                        <input type="text" id="name" name="name" placeholder="my-docs" required pattern="[a-z0-9-]+" title="Lowercase letters, numbers, and hyphens only">
+                    </div>
+                    <div class="form-group">
+                        <label for="base_url">Documentation URL</label>
+                        <input type="url" id="base_url" name="base_url" placeholder="https://docs.example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="max_pages">Max Pages</label>
+                        <input type="number" id="max_pages" name="max_pages" value="100" min="1" max="10000">
+                    </div>
+                    <button type="submit" class="btn">Add & Scrape</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Search -->
+        <section class="card">
+            <h2>Search</h2>
+            <form id="search-form" hx-post="/api/search" hx-target="#search-results" hx-indicator="#search-spinner">
+                <div class="form-row">
+                    <div class="form-group flex-grow">
+                        <input type="text" name="query" placeholder="Search documentation..." required>
+                    </div>
+                    <div class="form-group">
+                        <select name="project_id">
+                            <option value="">All projects</option>
+                            {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Search</button>
+                    <span id="search-spinner" class="spinner"></span>
+                </div>
+            </form>
+            <div id="search-results"></div>
+        </section>
+
+        <!-- Projects List -->
+        <section class="card">
+            <h2>Projects</h2>
+            <div id="projects-list">
+                {% if projects %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>URL</th>
+                            <th>Documents</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in projects %}
+                        <tr id="project-{{ project.id }}">
+                            <td><strong>{{ project.name }}</strong></td>
+                            <td class="url">{{ project.base_url | truncate(40) }}</td>
+                            <td>{{ project.doc_count }}</td>
+                            <td>
+                                {% if project.status == 'ready' %}
+                                <span class="badge badge-ok">Ready</span>
+                                {% elif project.status == 'scraping' %}
+                                <span class="badge badge-pending">Scraping...</span>
+                                {% elif project.status == 'error' %}
+                                <span class="badge badge-error">Error</span>
+                                {% else %}
+                                <span class="badge">{{ project.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="actions">
+                                <button class="btn btn-sm" hx-post="/api/projects/{{ project.id }}/scrape" hx-target="#project-{{ project.id }}" hx-swap="outerHTML">Rescrape</button>
+                                <button class="btn btn-sm btn-danger" hx-delete="/api/projects/{{ project.id }}" hx-target="#project-{{ project.id }}" hx-swap="outerHTML" hx-confirm="Delete {{ project.name }}?">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No projects yet. Add one above to get started.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- MCP Config -->
+        <section class="card">
+            <h2>MCP Configuration</h2>
+            <p>Add this to your MCP client configuration:</p>
+            <pre><code>{
+  "mcpServers": {
+    "docsmcp": {
+      "url": "{{ request.url_root }}mcp"
+    }
+  }
+}</code></pre>
+            <p class="hint">Endpoint: <code>{{ request.url_root }}mcp</code></p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>DocsMCP &middot; <a href="https://github.com/yourusername/docsmcp">Open Source</a> &middot; MIT License</p>
+        </div>
+    </footer>
+
+    <script>
+        // Poll for scraping status
+        document.body.addEventListener('htmx:afterSwap', function(event) {
+            if (event.detail.target.id === 'projects-list') {
+                updateStats();
+            }
+        });
+
+        async function updateStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                document.getElementById('project-count').textContent = data.projects;
+                document.getElementById('doc-count').textContent = data.documents;
+            } catch (e) {}
+        }
+
+        // Auto-refresh stats every 30s
+        setInterval(updateStats, 30000);
+    </script>
+</body>
+</html>

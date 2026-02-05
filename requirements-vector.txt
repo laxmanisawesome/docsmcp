@@ -1,0 +1,17 @@
+# DocsMCP Vector Search Dependencies
+# Install with: pip install -r requirements-vector.txt
+# 
+# These add ~300MB and require ~500MB extra RAM at runtime
+# Only needed if you want semantic/vector search
+
+# Include core dependencies
+-r requirements.txt
+
+# Sentence embeddings (local, no API needed)
+sentence-transformers>=2.2.0,<3.0.0
+
+# Vector similarity search
+faiss-cpu>=1.7.0,<2.0.0
+
+# Numpy (pinned for compatibility)
+numpy>=1.24.0,<2.0.0
