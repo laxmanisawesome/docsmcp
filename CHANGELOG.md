@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2024-12-19
+
+### Added
+- Enhanced web dashboard with complete project management interface
+- MCP configuration generator for Claude Desktop, VS Code, and custom clients
+- Interactive project details modal with document browser
+- Comprehensive installation testing and validation
+- Service management scripts for local Python installations  
+- Docker prerequisite guidance in installation docs
+
+### Improved
+- Local Python mode now includes automatic service testing and validation
+- Installation script provides working localhost URL immediately after setup
+- Better error handling and diagnostic logging during installation
+- Start/stop scripts created automatically for local installations
+- Enhanced documentation with service management instructions
+
+### Fixed
+- macOS bash compatibility issues in installer script
+- Git clone conflicts during installation
+- Template path resolution in web interface
+- Python 3.9 compatibility for Union type annotations
+- Missing health endpoint usage in installation testing
+
 ### Changed
 - Documentation: updated repository links to https://github.com/laxmanisawesome/docsmcp and added maintainer contact ([@laxmanisawesome](https://github.com/laxmanisawesome), laxtothemax@proton.me)
 
