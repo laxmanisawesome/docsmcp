@@ -5,9 +5,33 @@ All notable changes to DocsMCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.0] - 2024-12-19
 
-## [0.6.0] - 2024-12-19
+### Added
+- Unified service management commands (`docsmcp-start`, `docsmcp-stop`, `docsmcp-status`)
+- PID-based process management for local Python installations
+- Proper service scripts for both Docker and local Python modes
+- Status checking with health endpoint validation and service URLs
+- Dedicated log files for local Python mode (`docsmcp.log`)
+
+### Fixed
+- Critical bash syntax errors in installer script (lines 337-338)
+- Orphaned code blocks causing installation failures
+- Broken function definitions in installer
+- Service management inconsistencies between Docker and local modes
+- Missing graceful shutdown procedures
+
+### Improved
+- Unified command interface for both Docker and local Python installations
+- Better process isolation with PID file management
+- Enhanced service status reporting with emoji indicators
+- Cleaner installation output with proper service management instructions
+- More robust service detection and cleanup procedures
+
+### Changed
+- Replaced manual start/stop scripts with unified management commands
+- Standardized service management across installation modes
+- Updated documentation to reflect new unified command structure
 
 ### Added
 - Enhanced web dashboard with complete project management interface

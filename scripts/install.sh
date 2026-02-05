@@ -333,16 +333,156 @@ EOF
         warn "Service may still be starting. Check logs: docker compose logs -f"
     fi
 }
-                success "DocsMCP is running!"
-                break
-            fi
-            sleep 1
-        done
+
+create_service_scripts() {
+    log "Creating service management scripts..."
+    
+    if [[ "$DEV_MODE" == "1" ]]; then
+        # Local Python mode scripts
+        cat > "$DOCSMCP_DIR/docsmcp-start" << 'START_SCRIPT'
+#!/bin/bash
+DOCSMCP_DIR="$(dirname "$(realpath "$0")")"
+cd "$DOCSMCP_DIR"
+
+if [[ -f "docsmcp.pid" ]]; then
+    PID=$(cat docsmcp.pid)
+    if kill -0 "$PID" 2>/dev/null; then
+        echo "DocsMCP is already running (PID: $PID)"
+        echo "Access it at: http://localhost:8090"
+        exit 0
+    else
+        rm -f docsmcp.pid
+    fi
+fi
+
+echo "Starting DocsMCP..."
+source venv/bin/activate
+nohup python -m src.main > docsmcp.log 2>&1 &
+echo $! > docsmcp.pid
+echo "DocsMCP started (PID: $!)"
+echo "Access it at: http://localhost:8090"
+echo "View logs with: tail -f $DOCSMCP_DIR/docsmcp.log"
+START_SCRIPT
+
+        cat > "$DOCSMCP_DIR/docsmcp-stop" << 'STOP_SCRIPT'
+#!/bin/bash
+DOCSMCP_DIR="$(dirname "$(realpath "$0")")"
+cd "$DOCSMCP_DIR"
+
+if [[ -f "docsmcp.pid" ]]; then
+    PID=$(cat docsmcp.pid)
+    if kill -0 "$PID" 2>/dev/null; then
+        echo "Stopping DocsMCP (PID: $PID)..."
+        kill "$PID"
+        rm -f docsmcp.pid
+        echo "DocsMCP stopped"
+    else
+        echo "DocsMCP is not running"
+        rm -f docsmcp.pid
+    fi
+else
+    echo "DocsMCP is not running (no PID file found)"
+    # Fallback: kill any running instances
+    pkill -f "python -m src.main" && echo "Killed orphaned DocsMCP processes"
+fi
+STOP_SCRIPT
+
+        cat > "$DOCSMCP_DIR/docsmcp-status" << 'STATUS_SCRIPT'
+#!/bin/bash
+DOCSMCP_DIR="$(dirname "$(realpath "$0")")"
+cd "$DOCSMCP_DIR"
+
+if [[ -f "docsmcp.pid" ]]; then
+    PID=$(cat docsmcp.pid)
+    if kill -0 "$PID" 2>/dev/null; then
+        echo "✅ DocsMCP is running (PID: $PID)"
+        echo "📊 Access dashboard: http://localhost:8090"
+        echo "🔗 MCP endpoint: http://localhost:8090/mcp"
+        # Test if actually responding
+        if curl -sf "http://localhost:8090/health" >/dev/null 2>&1; then
+            echo "🟢 Service is responding"
+        else
+            echo "🔴 Service may be starting or having issues"
+        fi
+    else
+        echo "🔴 DocsMCP is not running (stale PID file)"
+        rm -f docsmcp.pid
+    fi
+else
+    echo "🔴 DocsMCP is not running"
+fi
+STATUS_SCRIPT
+
+        chmod +x "$DOCSMCP_DIR/docsmcp-start"
+        chmod +x "$DOCSMCP_DIR/docsmcp-stop"
+        chmod +x "$DOCSMCP_DIR/docsmcp-status"
+        
+    else
+        # Docker mode scripts
+        cat > "$DOCSMCP_DIR/docsmcp-start" << 'DOCKER_START'
+#!/bin/bash
+DOCSMCP_DIR="$(dirname "$(realpath "$0")")"
+cd "$DOCSMCP_DIR"
+
+echo "Starting DocsMCP with Docker..."
+docker compose up -d
+
+# Wait for service to be ready
+echo "Waiting for service to start..."
+for i in {1..30}; do
+    if curl -sf "http://localhost:8090/health" &>/dev/null; then
+        echo "✅ DocsMCP is running!"
+        echo "📊 Access dashboard: http://localhost:8090"
+        echo "🔗 MCP endpoint: http://localhost:8090/mcp"
+        exit 0
+    fi
+    sleep 1
+done
+
+echo "⚠️  Service may still be starting. Check logs with: docker compose logs -f"
+DOCKER_START
+
+        cat > "$DOCSMCP_DIR/docsmcp-stop" << 'DOCKER_STOP'
+#!/bin/bash
+DOCSMCP_DIR="$(dirname "$(realpath "$0")")"
+cd "$DOCSMCP_DIR"
+
+echo "Stopping DocsMCP..."
+docker compose down
+echo "DocsMCP stopped"
+DOCKER_STOP
+
+        cat > "$DOCSMCP_DIR/docsmcp-status" << 'DOCKER_STATUS'
+#!/bin/bash
+DOCSMCP_DIR="$(dirname "$(realpath "$0")")"
+cd "$DOCSMCP_DIR"
+
+# Check if containers are running
+if docker compose ps --services --filter "status=running" | grep -q docsmcp; then
+    echo "✅ DocsMCP is running"
+    echo "📊 Access dashboard: http://localhost:8090"
+    echo "🔗 MCP endpoint: http://localhost:8090/mcp"
+    # Test if actually responding
+    if curl -sf "http://localhost:8090/health" >/dev/null 2>&1; then
+        echo "🟢 Service is responding"
+    else
+        echo "🔴 Service may be starting or having issues"
+    fi
+else
+    echo "🔴 DocsMCP is not running"
+fi
+echo ""
+echo "📋 Container status:"
+docker compose ps
+DOCKER_STATUS
+
+        chmod +x "$DOCSMCP_DIR/docsmcp-start"
+        chmod +x "$DOCSMCP_DIR/docsmcp-stop"
+        chmod +x "$DOCSMCP_DIR/docsmcp-status"
     fi
 }
 
 create_cli_wrapper() {
-    log "Creating CLI wrapper..."
     
     # Create wrapper script
     cat > "$DOCSMCP_DIR/docsmcp" << 'WRAPPER'
@@ -399,16 +539,18 @@ print_success() {
     if [[ "$DEV_MODE" == "1" ]]; then
         # Local Python mode instructions
         echo "  Local Python Mode:"
-        echo "    Start:      cd $DOCSMCP_DIR && ./start.sh"
-        echo "    Stop:       cd $DOCSMCP_DIR && ./stop.sh"
+        echo \"    Start:      $DOCSMCP_DIR/docsmcp-start\"
+        echo "    Stop:       $DOCSMCP_DIR/docsmcp-stop"
         echo "    Manual:     cd $DOCSMCP_DIR && source venv/bin/activate && python -m src.main"
-        echo "    Logs:       Check startup.log for any startup issues"
+        echo "    Status:     $DOCSMCP_DIR/docsmcp-status"
+        echo "    Logs:       tail -f $DOCSMCP_DIR/docsmcp.log"
     else
         # Docker mode instructions  
         echo "  Docker Mode:"
+        echo "    Start:      $DOCSMCP_DIR/docsmcp-start"
+        echo "    Stop:       $DOCSMCP_DIR/docsmcp-stop"
+        echo "    Status:     $DOCSMCP_DIR/docsmcp-status"
         echo "    Logs:       docker compose -f $DOCSMCP_DIR/docker-compose.yml logs -f"
-        echo "    Stop:       docker compose -f $DOCSMCP_DIR/docker-compose.yml down"
-        echo "    Restart:    docker compose -f $DOCSMCP_DIR/docker-compose.yml restart"
     fi
     
     echo ""
@@ -425,6 +567,7 @@ main() {
     download_files
     configure
     start_service
+    create_service_scripts
     create_cli_wrapper
     print_success
 }
