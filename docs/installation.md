@@ -63,7 +63,7 @@ Navigate to [http://localhost:8090](http://localhost:8090)
 For quick setup on a fresh server:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scripts/install.sh | bash
 ```
 
 The script will:
@@ -78,7 +78,7 @@ The script will:
 For guided setup with prompts:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash -s -- --interactive
+curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scripts/install.sh | bash -s -- --interactive
 ```
 
 ---

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # DocsMCP One-Line Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scripts/install.sh | bash
 #
 # Options (via environment variables):
 #   DOCSMCP_DIR     Installation directory (default: ~/.docsmcp)

@@ -72,7 +72,7 @@ curl -X POST http://localhost:8090/api/projects \
 ### Option 2: One-Line Install
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/laxmanisawesome/docsmcp/master/scripts/install.sh | bash
 ```
 
 ### Option 3: Manual Installation
