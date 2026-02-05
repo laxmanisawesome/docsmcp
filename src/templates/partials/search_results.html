@@ -1,0 +1,14 @@
+{% for result in results %}
+<div class="search-result">
+    <h4>{{ result.title }}</h4>
+    <p>{{ result.snippet | truncate(200) }}</p>
+    <div class="meta">
+        <span>Project: {{ result.project_name }}</span>
+        {% if result.score %}
+        &middot; <span>Score: {{ "%.2f"|format(result.score) }}</span>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<p class="empty-state">No results found. Try a different query.</p>
+{% endfor %}

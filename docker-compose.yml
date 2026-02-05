@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  docsmcp:
+    build: .
+    image: docsmcp:latest
+    container_name: docsmcp
+    ports:
+      - "${PORT:-8090}:8090"
+    volumes:
+      # Persistent data storage
+      - ./data:/app/data
+    environment:
+      # Required
+      - API_TOKEN=${API_TOKEN:-changeme}
+      
+      # Server
+      - HOST=0.0.0.0
+      - PORT=8090
+      - DATA_DIR=/app/data
+      
+      # Search
+      - ENABLE_VECTOR_INDEX=${ENABLE_VECTOR_INDEX:-0}
+      - SEARCH_RESULTS_LIMIT=${SEARCH_RESULTS_LIMIT:-10}
+      
+      # Scraping
+      - MAX_PAGES_PER_PROJECT=${MAX_PAGES_PER_PROJECT:-10000}
+      - RATE_LIMIT_DELAY=${RATE_LIMIT_DELAY:-1.0}
+      - RESPECT_ROBOTS_TXT=${RESPECT_ROBOTS_TXT:-permissive}
+      - MAX_CONCURRENT_SCRAPES=${MAX_CONCURRENT_SCRAPES:-3}
+      
+      # Security
+      - ENABLE_AUTH=${ENABLE_AUTH:-true}
+      - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS:-100}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      
+      # Webhooks (optional)
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits (adjust based on your VPS)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+# Optional: named volume for data persistence
+# volumes:
+#   docsmcp_data:

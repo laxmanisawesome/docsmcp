@@ -1,0 +1,26 @@
+{% for project in projects %}
+<tr id="project-{{ project.id }}">
+    <td><strong>{{ project.name }}</strong></td>
+    <td class="url">{{ project.base_url | truncate(40) }}</td>
+    <td>{{ project.doc_count }}</td>
+    <td>
+        {% if project.status == 'ready' %}
+        <span class="badge badge-ok">Ready</span>
+        {% elif project.status == 'scraping' %}
+        <span class="badge badge-pending">Scraping...</span>
+        {% elif project.status == 'error' %}
+        <span class="badge badge-error">Error</span>
+        {% else %}
+        <span class="badge">{{ project.status }}</span>
+        {% endif %}
+    </td>
+    <td class="actions">
+        <button class="btn btn-sm" hx-post="/api/projects/{{ project.id }}/scrape" hx-target="#project-{{ project.id }}" hx-swap="outerHTML">Rescrape</button>
+        <button class="btn btn-sm btn-danger" hx-delete="/api/projects/{{ project.id }}" hx-target="#project-{{ project.id }}" hx-swap="outerHTML" hx-confirm="Delete {{ project.name }}?">Delete</button>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="5" class="empty-state">No projects yet.</td>
+</tr>
+{% endfor %}

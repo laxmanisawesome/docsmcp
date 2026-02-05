@@ -1,0 +1,12 @@
+{
+  "name": "fastapi",
+  "base_url": "https://fastapi.tiangolo.com",
+  "max_pages": 150,
+  "allowed_patterns": [
+    "/tutorial/*",
+    "/advanced/*"
+  ],
+  "excluded_patterns": [],
+  "respect_robots_txt": true,
+  "rate_limit_delay": 0.5
+}
