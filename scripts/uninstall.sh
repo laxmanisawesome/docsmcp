@@ -38,7 +38,8 @@ echo "  1) Remove everything (containers, data, configuration)"
 echo "  2) Remove containers only (keep data)"
 echo "  3) Cancel"
 echo ""
-read -p "Choice [1-3]: " choice
+# Read from /dev/tty so prompt works when script is piped
+read -p "Choice [1-3]: " choice </dev/tty
 
 case "$choice" in
     1)
@@ -67,7 +68,8 @@ docker rmi docsmcp:latest 2>/dev/null || true
 if [[ "$REMOVE_DATA" == "1" ]]; then
     # Offer backup
     warn "Create backup before removing data? [Y/n]"
-    read -r response
+    # Read from /dev/tty so the prompt blocks when piped
+    read -r response </dev/tty
     if [[ ! "$response" =~ ^[Nn]$ ]]; then
         if [[ -f "$DOCSMCP_DIR/scripts/backup.sh" ]]; then
             BACKUP_DIR="$HOME" "$DOCSMCP_DIR/scripts/backup.sh"

@@ -163,7 +163,8 @@ restore_backup() {
     
     # Confirm
     warn "This will overwrite existing data. Continue? [y/N]"
-    read -r response
+    # Read from /dev/tty so prompt works when script is piped
+    read -r response </dev/tty
     if [[ ! "$response" =~ ^[Yy]$ ]]; then
         log "Restore cancelled"
         exit 0

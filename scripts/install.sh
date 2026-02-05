@@ -116,7 +116,8 @@ check_docker() {
         echo "  (I)nstall Docker now (recommended)"
         echo "  (L)ocal Python (dev) mode — run using virtualenv on this machine"
         echo "  (S)kip Docker and exit (you can set SKIP_DOCKER=1 to bypass)"
-        read -r -p "Choose I / L / S [I]: " choice
+        # Read from /dev/tty so prompts work when script is piped into bash
+        read -r -p "Choose I / L / S [I]: " choice </dev/tty
         choice="${choice:-I}"
         case "${choice^^}" in
             I)
@@ -291,7 +292,8 @@ WRAPPER
     if [[ ":$PATH:" != *":$DOCSMCP_DIR:"* ]]; then
         echo ""
         log "Add to PATH? This allows running 'docsmcp' from anywhere. [Y/n]"
-        read -r response
+        # Read from /dev/tty to allow interactive input when piped
+        read -r response </dev/tty
         if [[ ! "$response" =~ ^[Nn]$ ]]; then
             SHELL_RC=""
             if [[ -f "$HOME/.zshrc" ]]; then
